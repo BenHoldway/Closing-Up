@@ -33,7 +33,17 @@ public class PlayerInteract : MonoBehaviour
             randNum = Random.Range(0, numFound);
         };
 
-        playerControls.Player.Interact.canceled += _ => { isInteracting = false; };
+        playerControls.Player.Interact.canceled += _ => 
+        { 
+            isInteracting = false;
+
+            if (interactableCols[randNum] == null)
+                return;
+
+            Interactable interactable = interactableCols[randNum].GetComponent<Interactable>();
+            if (interactable.IsATaskInteractable)
+                interactable.StopInteracting();
+        };
     }
 
     private void OnDisable()
@@ -54,11 +64,12 @@ public class PlayerInteract : MonoBehaviour
 
         if(numFound > 0 && isInteracting) 
         { 
-            Interactable interactable = interactableCols[randNum].GetComponent<Interactable>();
+            IInteractable interactable = interactableCols[randNum].GetComponent<IInteractable>();
 
             if(interactable != null) 
             {
                 interactable.Interact();
+                isInteracting = false;
             }
         }
     }
@@ -67,8 +78,8 @@ public class PlayerInteract : MonoBehaviour
     {
         if(!Application.isPlaying)
         {
-        }
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(transform.position, interactionRadius);
+        }
     }
 }
