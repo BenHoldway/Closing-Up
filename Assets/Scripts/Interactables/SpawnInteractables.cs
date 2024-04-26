@@ -53,8 +53,6 @@ public class SpawnInteractables : MonoBehaviour
 
         float spawnX = Random.Range(floor.transform.position.x - bound.extents.x, floor.transform.position.x + bound.extents.x);
         float spawnY = Random.Range(floor.transform.position.y - bound.extents.y, floor.transform.position.y + bound.extents.y);
-        print($"X: {Random.Range(floor.transform.position.x - bound.extents.x, floor.transform.position.x + bound.extents.x)}, Y: {Random.Range(floor.transform.position.y - bound.extents.y, floor.transform.position.y + bound.extents.y)}");
-        print($"Spawnpoint: {new Vector2(spawnX, spawnY)}");
 
         return new Vector2(spawnX, spawnY); 
     }
