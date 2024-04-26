@@ -99,7 +99,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ac5a7080ae28764eb0d7e9e22443e23, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isATaskInteractable: 0
+  isATaskInteractable: 1
 --- !u!58 &6175672547878419484
 CircleCollider2D:
   m_ObjectHideFlags: 0
