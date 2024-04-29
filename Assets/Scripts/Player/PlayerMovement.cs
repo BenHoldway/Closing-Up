@@ -34,12 +34,7 @@ public class PlayerMovement : MonoBehaviour
     {
         playerControls.Disable();
         movement = Vector2.zero;
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
+        rb.velocity = Vector2.zero;
     }
 
     // Update is called once per frame

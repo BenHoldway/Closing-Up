@@ -8,7 +8,7 @@ public class Electronics : TaskInteractable, IInteractable
     [SerializeField] Sprite offSprite;
     [SerializeField] GameObject objLight;
 
-    protected override void CompleteTask()
+    protected override void InteractionCompleted()
     {
         if(!isBeingCompleted) return;
 
@@ -22,5 +22,7 @@ public class Electronics : TaskInteractable, IInteractable
         print($"{gameObject.name}'s task has been completed!");
         isCompleted = true;
         isBeingCompleted = false;
+
+        EnableMovement();
     }
 }

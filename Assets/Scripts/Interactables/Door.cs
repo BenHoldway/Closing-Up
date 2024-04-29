@@ -14,18 +14,31 @@ public class Door : Interactable, IInteractable
 
     [SerializeField] KeyManager.KeyTypes correctKey;
 
+    [SerializeField][TextArea] string closedText;
+    [SerializeField][TextArea] string openText;
+    [SerializeField][TextArea] string lockedText;
+
+    [SerializeField][TextArea] string nowLockedText;
+    [SerializeField][TextArea] string unlockedText;
+
     // Start is called before the first frame update
     void Start()
     {
-        if(isOpened)
+        if(isLocked) 
+        {
+            UIText = lockedText;
+        }
+        else if(isOpened)
         {
             openedDoor.SetActive(true);
             closedDoor.SetActive(false);
+            UIText = openText;
         }
-        else
+        else if(!isOpened && !isLocked)
         {
             openedDoor.SetActive(false);
             closedDoor.SetActive(true);
+            UIText = closedText;
         }
     }
 
@@ -34,14 +47,16 @@ public class Door : Interactable, IInteractable
         if (isLocked)
         {
             print($"{gameObject.name} is locked, unable to open");
+            StartCoroutine(LockedText(false));
             return;
         }
 
-        if (isOpened)
+        else if (isOpened)
         {
             print($"{gameObject.name} was closed");
             openedDoor.SetActive(false);
             closedDoor.SetActive(true);
+            UIText = closedText;
             isOpened = false;
         }
         else
@@ -49,6 +64,7 @@ public class Door : Interactable, IInteractable
             print($"{gameObject.name} was opened");
             openedDoor.SetActive(true);
             closedDoor.SetActive(false);
+            UIText = openText;
             isOpened = true;
         }
     }
@@ -65,15 +81,54 @@ public class Door : Interactable, IInteractable
             if (!isLocked)
             {
                 isLocked = true;
+                StartCoroutine(LockedText(true));
                 print($"{gameObject.name} is now locked");
             }
             else
             {
                 isLocked = false;
+                StartCoroutine(LockedText(true));
                 print($"{gameObject.name} is now unlocked");
             }
         }
         else if (isOpened && Input.GetMouseButtonDown(1))
             print($"Please close {gameObject.name} before attempting to lock");
+    }
+
+    IEnumerator LockedText(bool changingState)
+    {
+        string beforeText = "";
+        string afterText = "";
+
+        //Locking/Unlocking Door
+        if(changingState)
+        {
+            if(isLocked)
+                beforeText = nowLockedText;
+            else
+                beforeText = unlockedText;
+
+            afterText = openText;
+        }
+        //Unable to open door because it is locked
+        else if(isLocked)
+        {
+            beforeText = lockedText;
+            afterText = closedText;
+        }
+        //Locking the door
+        else
+        {
+            beforeText = nowLockedText;
+            afterText = openText;
+        }
+
+        print(beforeText + " " + afterText);
+
+        UIText = beforeText;
+
+        yield return new WaitForSeconds(2);
+
+        UIText = afterText;
     }
 }

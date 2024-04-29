@@ -24,8 +24,5 @@ public class CameraFocus : MonoBehaviour
         Vector3 finalPos = new Vector3 (disX, disY, -10) + player.position;
 
         transform.position = Vector3.Lerp(transform.position, finalPos, Time.deltaTime * 2);
-
-        print(player.position);
-        print(finalPos);
     }
 }

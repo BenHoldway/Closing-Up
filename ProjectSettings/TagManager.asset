@@ -13,8 +13,8 @@ TagManager:
   - UI
   - Interactable
   - Floor
-  - 
-  - 
+  - Shadowcaster
+  - Lighting
   - 
   - 
   - 
@@ -43,4 +43,13 @@ TagManager:
     locked: 0
   - name: Walls
     uniqueID: 2149208119
+    locked: 0
+  - name: BlockLight
+    uniqueID: 2212329829
+    locked: 0
+  - name: Entrance
+    uniqueID: 3093225287
+    locked: 0
+  - name: Side Room
+    uniqueID: 4131232263
     locked: 0

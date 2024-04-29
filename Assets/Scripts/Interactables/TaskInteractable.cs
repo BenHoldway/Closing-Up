@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TaskInteractable : Interactable, IInteractable
 {
@@ -10,10 +12,18 @@ public class TaskInteractable : Interactable, IInteractable
     protected bool isBeingCompleted;
     protected bool isCompleted;
 
+    public static event Action DisablePlayerMovement;
+    public static event Action EnablePlayerMovement;
+
+    [SerializeField] Slider fillAmount;
+
     private void Awake()
     {
-        GetComponent<SpriteRenderer>().sprite = sprite;
+        if(sprite != null)
+            GetComponent<SpriteRenderer>().sprite = sprite;
+
         completionCurrentTime = 0;
+        fillAmount.value = 0;
     }
 
     private void Update() 
@@ -22,9 +32,11 @@ public class TaskInteractable : Interactable, IInteractable
         {
             completionCurrentTime += Time.deltaTime;
 
+            fillAmount.value = (1 / completionMaxTime) * completionCurrentTime;
+
             if(completionCurrentTime >= completionMaxTime) 
             {
-                CompleteTask();
+                InteractionCompleted();
             }
         }
     }
@@ -36,6 +48,8 @@ public class TaskInteractable : Interactable, IInteractable
 
         isBeingCompleted = true;
         print($"{gameObject.name} is a task, being completed");
+
+        DisableMovement();
     }
 
     public override void StopInteracting()
@@ -43,13 +57,29 @@ public class TaskInteractable : Interactable, IInteractable
         isBeingCompleted = false;
         completionCurrentTime = 0;
         print($"Cancelled interacting with the task object; {gameObject.name}");
+
+        EnableMovement();
     }
 
-    protected virtual void CompleteTask()
+    protected virtual void InteractionCompleted()
     {
         print($"{gameObject.name}'s task has been completed!");
         Destroy(gameObject);
         isCompleted = true;
         isBeingCompleted = false;
+
+        EnableMovement();
+    }
+
+    //This is so any child classes can call the event
+    protected void EnableMovement()
+    {
+        fillAmount.value = 0;
+        EnablePlayerMovement?.Invoke();
+    }
+
+    protected virtual void DisableMovement() 
+    {
+        DisablePlayerMovement?.Invoke();
     }
 }

@@ -1,13 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+using System;
 using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
 
 public class PlayerInteract : MonoBehaviour
 {
     PlayerControls playerControls;
+    PlayerMovement playerMovement;
 
     [SerializeField] bool isInteracting;
     [SerializeField] float interactionRadius;
@@ -15,12 +13,18 @@ public class PlayerInteract : MonoBehaviour
 
     [SerializeField] Collider2D[] interactableCols = new Collider2D[3];
 
+    [SerializeField] GameObject promptUI;
+
+    public static event Action<GameObject, GameObject> GetInteractPrompt;
+
     int numFound;
-    int randNum;
+    Interactable interactable;
+    IInteractable iInteractable;
 
     private void Awake()
     {
         playerControls = new PlayerControls();
+        playerMovement = GetComponent<PlayerMovement>();
     }
 
     private void OnEnable()
@@ -30,31 +34,25 @@ public class PlayerInteract : MonoBehaviour
         playerControls.Player.Interact.started += _ => 
         { 
             isInteracting = true;
-            randNum = Random.Range(0, numFound);
         };
 
         playerControls.Player.Interact.canceled += _ => 
         { 
             isInteracting = false;
 
-            if (interactableCols[randNum] == null)
-                return;
-
-            Interactable interactable = interactableCols[randNum].GetComponent<Interactable>();
-            if (interactable.IsATaskInteractable)
-                interactable.StopInteracting();
+            HandleClosestInteractable(true);
         };
+
+        TaskInteractable.EnablePlayerMovement += EnableMovement;
+        TaskInteractable.DisablePlayerMovement += DisableMovement;
     }
 
     private void OnDisable()
     {
         playerControls.Disable();
-    }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
+        TaskInteractable.EnablePlayerMovement -= EnableMovement;
+        TaskInteractable.DisablePlayerMovement -= DisableMovement;
     }
 
     // Update is called once per frame
@@ -62,17 +60,76 @@ public class PlayerInteract : MonoBehaviour
     {
         numFound = Physics2D.OverlapCircleNonAlloc(transform.position, interactionRadius, interactableCols, interactionMask);
 
-        if(numFound > 0 && isInteracting) 
-        { 
-            IInteractable interactable = interactableCols[randNum].GetComponent<IInteractable>();
+        if (numFound > 0)
+            HandleClosestInteractable(false);
+        else
+        {
+            if(promptUI.activeSelf)
+                promptUI.SetActive(false);
+        }
+                
+    }
 
-            if(interactable != null) 
+    void HandleClosestInteractable(bool stopInteracting)
+    {
+        int closestIndex = GetClosest();
+        
+        if (interactableCols[closestIndex] == null)
+            return;
+
+        iInteractable = interactableCols[closestIndex].GetComponent<IInteractable>();
+
+
+        GetInteractPrompt?.Invoke(interactableCols[closestIndex].gameObject, promptUI);
+
+        if (isInteracting)
+        {
+            if (iInteractable != null)
             {
-                interactable.Interact();
+                iInteractable.Interact();
                 isInteracting = false;
             }
         }
+        else if(stopInteracting)
+        {
+            interactable = interactableCols[closestIndex].GetComponent<Interactable>();
+
+            if (interactable.IsATaskInteractable)
+                interactable.StopInteracting();
+        }
     }
+
+    private int GetClosest()
+    {
+        float dis = 1000;
+        int closestCol = 0;
+        foreach(Collider2D col in interactableCols) 
+        {
+            if (col == null)
+                continue;
+
+            float newDis = Vector2.Distance(transform.position, col.gameObject.transform.position);
+            if (newDis < dis)
+            {
+                dis = newDis;
+                closestCol = System.Array.IndexOf(interactableCols, col);
+            }
+
+        }
+
+        return closestCol;
+    }
+
+    void EnableMovement()
+    {
+        playerMovement.enabled = true;
+    }
+
+    void DisableMovement()
+    {
+        playerMovement.enabled = false;
+    }
+
 
     private void OnDrawGizmos()
     {
