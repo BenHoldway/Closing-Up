@@ -38,8 +38,17 @@ TagManager:
   - 
   - 
   m_SortingLayers:
-  - name: Default
-    uniqueID: 0
+  - name: SideRoom2
+    uniqueID: 1906871775
+    locked: 0
+  - name: Side Room
+    uniqueID: 4131232263
+    locked: 0
+  - name: Entrance
+    uniqueID: 3093225287
+    locked: 0
+  - name: Floor
+    uniqueID: 311808401
     locked: 0
   - name: Walls
     uniqueID: 2149208119
@@ -47,9 +56,12 @@ TagManager:
   - name: BlockLight
     uniqueID: 2212329829
     locked: 0
-  - name: Entrance
-    uniqueID: 3093225287
+  - name: Roof
+    uniqueID: 3823615711
     locked: 0
-  - name: Side Room
-    uniqueID: 4131232263
+  - name: Windows
+    uniqueID: 3513165369
+    locked: 0
+  - name: Default
+    uniqueID: 0
     locked: 0

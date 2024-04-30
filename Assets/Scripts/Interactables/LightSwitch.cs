@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 public class LightSwitch : Interactable, IInteractable
 {
     [SerializeField] bool lightIsOn;
 
-    [SerializeField] GameObject[] lights;
+    [SerializeField] GameObject lightParent;
+    GameObject[] lights;
 
     [SerializeField][TextArea] string onText;
     [SerializeField][TextArea] string offText;
@@ -14,6 +16,8 @@ public class LightSwitch : Interactable, IInteractable
     // Start is called before the first frame update
     void Start()
     {
+        GetAllLights();
+
         foreach (GameObject light in lights)
             light.SetActive(lightIsOn);
 
@@ -21,6 +25,15 @@ public class LightSwitch : Interactable, IInteractable
             UIText = onText;
         else
             UIText = offText;
+    }
+
+    void GetAllLights()
+    {
+        Light2D[] children = lightParent.GetComponentsInChildren<Light2D>();
+        lights = new GameObject[children.Length];
+
+        for (int i = 0; i < children.Length; i++)
+            lights[i] = children[i].gameObject;
     }
 
     public void Interact()
