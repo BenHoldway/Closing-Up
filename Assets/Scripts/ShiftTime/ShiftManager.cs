@@ -11,7 +11,7 @@ public class ShiftManager : MonoBehaviour
     public float ShiftStartTime {  get; private set; }
     public float ShiftEndTime {  get; private set; }
 
-    float ShiftCurrentTime;
+    public float ShiftCurrentTime { get; private set; }
     int lastTimeIncrement;
 
     int shiftCount;
@@ -19,6 +19,7 @@ public class ShiftManager : MonoBehaviour
     [SerializeField] TMP_Text shiftTimeText;
 
     public static event Action NextShiftEvent;
+    public static event Action IncreaseDifficulty;
 
     // Start is called before the first frame update
     void Awake()
@@ -29,7 +30,7 @@ public class ShiftManager : MonoBehaviour
             Destroy(Instance);
 
 
-        ShiftStartTime = 17f * 60f;
+        ShiftStartTime = 22f * 60f;
         ShiftEndTime = 23f * 60f;
 
         ShiftCurrentTime = ShiftStartTime;
@@ -37,7 +38,6 @@ public class ShiftManager : MonoBehaviour
 
         shiftCount = 0;
         shiftTimeText.text = $"{TimeSpan.FromSeconds(ShiftStartTime).ToString(@"mm\:ss")}";
-
     }
 
     private void OnEnable()
@@ -78,6 +78,9 @@ public class ShiftManager : MonoBehaviour
         shiftCount++;
         ShiftCurrentTime = ShiftStartTime;
         lastTimeIncrement = 0;
+
+        if(shiftCount % 2 == 0)
+            IncreaseDifficulty?.Invoke();
     }
 
     void NextShift()
