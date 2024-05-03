@@ -169,6 +169,34 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "UI",
+            "id": "42fd654e-a14d-49b6-a65a-8670dc0e9376",
+            "actions": [
+                {
+                    "name": "NextShift",
+                    "type": "Button",
+                    "id": "badf0de3-9d20-46f8-9724-801f4f8fd2f7",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "d1d53b64-fbb7-4a06-81ab-9bfe45b9fc09",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "NextShift",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []
