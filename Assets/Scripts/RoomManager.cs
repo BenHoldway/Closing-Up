@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,12 +6,15 @@ public class RoomManager : MonoBehaviour
 {
     TaskPicker[] rooms;
     [SerializeField] List<Task> tasks = new List<Task>();
+    [SerializeField] List<Task> pickedTasks = new List<Task>();
 
     int minTasks;
     int maxTasks;
 
     float taskMultiplier;
-    [SerializeField] float hardestDifficulty; 
+    [SerializeField] float hardestDifficulty;
+
+    public static event Action<GameObject, List<Task>> SpawnInteractable;
 
     private void OnEnable()
     {
@@ -47,16 +51,22 @@ public class RoomManager : MonoBehaviour
         for (int i = 0; i < rooms.Length; i++)
         {
             //Random size of tasks
-            int numOfTasks = Random.Range((int)(minTasks * taskMultiplier), (int)(maxTasks * taskMultiplier));
-            rooms[i].InitArray(numOfTasks);
+            int numOfTasks = UnityEngine.Random.Range((int)(minTasks * taskMultiplier), (int)(maxTasks * taskMultiplier));
+            rooms[0].InitArray(numOfTasks);
 
             for (int taskIndex = 0; taskIndex < numOfTasks; taskIndex++)
             {
                 //Initialises random task type for each task
-                int randNum = Random.Range(0, tasks.Count);
-                rooms[i].PickTask(tasks[randNum]);
+                int randNum = UnityEngine.Random.Range(0, tasks.Count);
+                rooms[0].PickTask(tasks[randNum]);
+
+                pickedTasks.Add(tasks[randNum]);
+
+                //print($"{rooms[i].gameObject.name} - {tasks[randNum]}");
             }
+            SpawnInteractable?.Invoke(rooms[0].gameObject, pickedTasks);
         }
+
     }
 
     void IncreaseMultiplier()
@@ -64,5 +74,4 @@ public class RoomManager : MonoBehaviour
         //Increase difficulty
         taskMultiplier = Mathf.Clamp(taskMultiplier += 0.75f, 1, hardestDifficulty);
     }
-
 }

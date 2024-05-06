@@ -19,11 +19,20 @@ public class Task : ScriptableObject
     }*/
 
     [SerializeField] string taskName;
-    public string TaskName { get { return taskName; } set { taskName = value; } }
+    public string TaskName { get { return taskName; } private set { taskName = value; } }
 
     [SerializeField] TaskType type;
-    public TaskType Type { get { return type; } set { type = value; } }
+    public TaskType Type { get { return type; } private set { type = value; } }
 
-/*    [SerializeField] Room roomPos;
-    public Room RoomPos { get { return roomPos; } set { roomPos = value; } }*/
+    [SerializeField] Sprite sprite;
+    public Sprite SpriteAsset { get {  return sprite; } private set { sprite = value; } }
+
+    [SerializeField][TextArea] string uIText;
+    public string UIText { get { return uIText; } private set { uIText = value; } }
+
+    [SerializeField] float completionTime;
+    public float CompletionTime { get {  return completionTime; } private set {  completionTime = value; } }
+
+    /*    [SerializeField] Room roomPos;
+        public Room RoomPos { get { return roomPos; } set { roomPos = value; } }*/
 }
