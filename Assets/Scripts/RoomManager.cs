@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class RoomManager : MonoBehaviour
 {
-    TaskPicker[] rooms;
+    SpawnInteractables[] rooms;
     [SerializeField] List<Task> tasks = new List<Task>();
     [SerializeField] List<Task> pickedTasks = new List<Task>();
 
@@ -14,7 +14,7 @@ public class RoomManager : MonoBehaviour
     float taskMultiplier;
     [SerializeField] float hardestDifficulty;
 
-    public static event Action<GameObject, List<Task>> SpawnInteractable;
+    public static event Action<GameObject> SpawnInteractable;
 
     private void OnEnable()
     {
@@ -35,8 +35,8 @@ public class RoomManager : MonoBehaviour
         taskMultiplier = 1.0f;
 
         //Gets all the room children and their TaskPicker component to create an array of size rooms
-        TaskPicker[] children = gameObject.GetComponentsInChildren<TaskPicker>();
-        rooms = new TaskPicker[children.Length];
+        SpawnInteractables[] children = gameObject.GetComponentsInChildren<SpawnInteractables>();
+        rooms = new SpawnInteractables[children.Length];
 
         for (int i = 0; i < children.Length; i++)
             rooms[i] = children[i];
@@ -52,21 +52,22 @@ public class RoomManager : MonoBehaviour
         {
             //Random size of tasks
             int numOfTasks = UnityEngine.Random.Range((int)(minTasks * taskMultiplier), (int)(maxTasks * taskMultiplier));
-            rooms[0].InitArray(numOfTasks);
+            rooms[i].InitArray(numOfTasks);
 
             for (int taskIndex = 0; taskIndex < numOfTasks; taskIndex++)
             {
                 //Initialises random task type for each task
                 int randNum = UnityEngine.Random.Range(0, tasks.Count);
-                rooms[0].PickTask(tasks[randNum]);
+                rooms[i].PickTask(tasks[randNum]);
 
-                pickedTasks.Add(tasks[randNum]);
+                //pickedTasks.Add(tasks[randNum]);
 
                 //print($"{rooms[i].gameObject.name} - {tasks[randNum]}");
             }
-            SpawnInteractable?.Invoke(rooms[0].gameObject, pickedTasks);
-        }
+            SpawnInteractable?.Invoke(rooms[i].gameObject);
 
+            //pickedTasks.Clear();
+        }
     }
 
     void IncreaseMultiplier()
