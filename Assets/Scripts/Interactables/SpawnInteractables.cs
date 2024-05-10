@@ -28,7 +28,7 @@ public class SpawnInteractables : MonoBehaviour
 
     private void OnEnable()
     {
-        RoomManager.SpawnInteractable += SpawnInteractable;
+        RoomManager.SpawnInteractables += SpawnInteractable;
     }
 
     // Update is called once per frame
@@ -51,7 +51,7 @@ public class SpawnInteractables : MonoBehaviour
         tasks = new Task[numOfTasks];
     }
 
-    //Constructs the task
+    //Constructs the tasks  
     public void PickTask(Task task)
     {
         if (tasks == null)
@@ -63,10 +63,8 @@ public class SpawnInteractables : MonoBehaviour
 
     void SpawnInteractable(GameObject _room) 
     {
-        //print($"Room: {room.name}, Task: {_task.name}");
         if(_room == gameObject)
         {
-            //print($"Found room for {_task.name} task");
             isAttemptingToSpawn = true;
             taskIndex = 0;
         }

@@ -16,10 +16,13 @@ public class ShiftManager : MonoBehaviour
 
     int shiftCount;
 
+    public static float DifficultyMultiplier { get; private set; }
+    [SerializeField] float hardestDifficulty;
+
     [SerializeField] TMP_Text shiftTimeText;
 
+    public static event Action CompleteShiftEvent;
     public static event Action NextShiftEvent;
-    public static event Action IncreaseDifficulty;
 
     // Start is called before the first frame update
     void Awake()
@@ -54,7 +57,7 @@ public class ShiftManager : MonoBehaviour
     void Update()
     {
         if (ShiftCurrentTime >= ShiftEndTime)
-            EndShift();
+            CompleteShift();
 
         int minutes = TimeSpan.FromSeconds(TimeManager.Instance.CurrentTime).Minutes;
         int seconds = TimeSpan.FromSeconds(TimeManager.Instance.CurrentTime).Seconds;
@@ -71,6 +74,12 @@ public class ShiftManager : MonoBehaviour
         }
     }
 
+    void CompleteShift()
+    {
+        CompleteShiftEvent?.Invoke();
+        EndShift();
+    }
+
     void EndShift()
     {
         NextShiftEvent?.Invoke();
@@ -79,12 +88,18 @@ public class ShiftManager : MonoBehaviour
         ShiftCurrentTime = ShiftStartTime;
         lastTimeIncrement = 0;
 
-        if(shiftCount % 2 == 0)
-            IncreaseDifficulty?.Invoke();
+        if (shiftCount % 2 == 0)
+            IncreaseMultiplier();
     }
 
     void NextShift()
     {
         shiftTimeText.text = $"{TimeSpan.FromSeconds(ShiftCurrentTime).ToString(@"mm\:ss")}";
+    }
+
+    //Increase difficulty
+    void IncreaseMultiplier()
+    {
+        DifficultyMultiplier = Mathf.Clamp(DifficultyMultiplier += 0.75f, 1, hardestDifficulty);
     }
 }

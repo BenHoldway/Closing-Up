@@ -16,9 +16,10 @@ public class TaskInteractable : Interactable, IInteractable
     protected bool isBeingCompleted;
     protected bool isCompleted;
 
+    public static event Action<TaskInteractable> NewTask;
     public static event Action DisablePlayerMovement;
     public static event Action EnablePlayerMovement;
-
+    public static event Action<TaskInteractable> TaskCompleted;
 
     private void Awake()
     {
@@ -32,6 +33,8 @@ public class TaskInteractable : Interactable, IInteractable
 
         completionCurrentTime = 0;
         fillAmount.value = 0;
+
+        NewTask?.Invoke(this);
     }
 
     private void Update() 
@@ -82,6 +85,8 @@ public class TaskInteractable : Interactable, IInteractable
         Destroy(gameObject);
         isCompleted = true;
         isBeingCompleted = false;
+
+        TaskCompleted?.Invoke(this);
 
         EnableMovement();
     }
