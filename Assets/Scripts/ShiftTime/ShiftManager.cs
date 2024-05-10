@@ -6,7 +6,8 @@ using System;
 
 public class ShiftManager : MonoBehaviour
 {
-    public static ShiftManager Instance;
+    private static ShiftManager instance;
+    public static ShiftManager Instance { get { return instance; } }
 
     public float ShiftStartTime {  get; private set; }
     public float ShiftEndTime {  get; private set; }
@@ -16,7 +17,7 @@ public class ShiftManager : MonoBehaviour
 
     int shiftCount;
 
-    public static float DifficultyMultiplier { get; private set; }
+    public float DifficultyMultiplier { get; private set; }
     [SerializeField] float hardestDifficulty;
 
     [SerializeField] TMP_Text shiftTimeText;
@@ -27,13 +28,13 @@ public class ShiftManager : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        if(Instance == null)
-            Instance = this;
+        if(instance == null)
+            instance = this;
         else
-            Destroy(Instance);
+            Destroy(instance);
 
 
-        ShiftStartTime = 22f * 60f;
+        ShiftStartTime = 21f * 60f;
         ShiftEndTime = 23f * 60f;
 
         ShiftCurrentTime = ShiftStartTime;

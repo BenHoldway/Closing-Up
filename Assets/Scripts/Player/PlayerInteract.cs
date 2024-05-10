@@ -8,6 +8,8 @@ public class PlayerInteract : MonoBehaviour
     PlayerMovement playerMovement;
 
     [SerializeField] bool isInteracting;
+    bool isLocking;
+
     [SerializeField] float interactionRadius;
     [SerializeField] LayerMask interactionMask;
 
@@ -16,6 +18,7 @@ public class PlayerInteract : MonoBehaviour
     [SerializeField] GameObject promptUI;
 
     public static event Action<GameObject, GameObject> GetInteractPrompt;
+    public static event Action<GameObject> LockDoor;
 
     int numFound;
     Interactable interactable;
@@ -39,7 +42,17 @@ public class PlayerInteract : MonoBehaviour
         playerControls.Player.Interact.canceled += _ => 
         { 
             isInteracting = false;
+            HandleClosestInteractable(true);
+        };
 
+        playerControls.Player.Lock.performed += _ =>
+        {
+            isLocking = true;
+        };
+
+        playerControls.Player.Lock.canceled += _ =>
+        {
+            isLocking = false;
             HandleClosestInteractable(true);
         };
 
@@ -79,8 +92,13 @@ public class PlayerInteract : MonoBehaviour
 
         iInteractable = interactableCols[closestIndex].GetComponent<IInteractable>();
 
-
         GetInteractPrompt?.Invoke(interactableCols[closestIndex].gameObject, promptUI);
+
+        if (isLocking)
+        {
+            LockDoorFunc(closestIndex);
+            return;
+        }
 
         if (isInteracting)
         {
@@ -96,6 +114,16 @@ public class PlayerInteract : MonoBehaviour
 
             if (interactable.IsATaskInteractable)
                 interactable.StopInteracting();
+        }
+    }
+
+    void LockDoorFunc(int closestIndex)
+    {
+        Door door = interactableCols[closestIndex].gameObject.GetComponent<Door>();
+        if (door != null)
+        {
+            door.LockDoor();
+            return;
         }
     }
 

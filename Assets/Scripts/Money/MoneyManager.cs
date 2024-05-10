@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class MoneyManager : MonoBehaviour
 {
-    MoneyManager Instance;
+    public static MoneyManager Instance { get; private set; }
 
     public int moneyAmout {  get; private set; }
 
@@ -13,7 +13,7 @@ public class MoneyManager : MonoBehaviour
         if(Instance == null)
             Instance = this;
         else
-            Destroy(Instance);
+            Destroy(gameObject);
 
         moneyPerTask = 5;
 

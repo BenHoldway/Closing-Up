@@ -4,7 +4,6 @@ using UnityEngine.UI;
 
 public class TaskInteractable : Interactable, IInteractable
 {
-    [SerializeField] Slider fillAmount;
     [SerializeField] Task task;
     public Task TaskSO { get { return task; } private set { task = value; } }
 
@@ -20,6 +19,7 @@ public class TaskInteractable : Interactable, IInteractable
     public static event Action DisablePlayerMovement;
     public static event Action EnablePlayerMovement;
     public static event Action<TaskInteractable> TaskCompleted;
+    public static event Action<float> ChangeSliderFill;
 
     private void Awake()
     {
@@ -32,9 +32,9 @@ public class TaskInteractable : Interactable, IInteractable
         }
 
         completionCurrentTime = 0;
-        fillAmount.value = 0;
 
         NewTask?.Invoke(this);
+        ChangeSliderFill?.Invoke(0);
     }
 
     private void Update() 
@@ -44,10 +44,9 @@ public class TaskInteractable : Interactable, IInteractable
         {
             //Add the time to the completion time
             completionCurrentTime += Time.deltaTime;
-            print(completionCurrentTime);
 
             //Increase the visual interaction bar by the percentage of completion
-            fillAmount.value = (1 / completionMaxTime) * completionCurrentTime;
+            ChangeSliderFill?.Invoke((1 / completionMaxTime) * completionCurrentTime);
 
             //If the completion reaches the max time, the interaction is done
             if(completionCurrentTime >= completionMaxTime) 
@@ -94,7 +93,7 @@ public class TaskInteractable : Interactable, IInteractable
     //This is so any child classes can call the event
     protected void EnableMovement()
     {
-        fillAmount.value = 0;
+        ChangeSliderFill?.Invoke(0);
         EnablePlayerMovement?.Invoke();
     }
 

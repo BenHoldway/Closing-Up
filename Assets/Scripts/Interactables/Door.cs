@@ -7,7 +7,7 @@ public class Door : Interactable, IInteractable
     [SerializeField] bool isOpened;
     [SerializeField] bool isLocked;
 
-    [SerializeField] GameObject keyManagerObj;
+    [SerializeField] KeyManager keyManager;
 
     [SerializeField] GameObject closedDoor;
     [SerializeField] GameObject openedDoor;
@@ -54,7 +54,7 @@ public class Door : Interactable, IInteractable
         else if (isOpened)
         {
             print($"{gameObject.name} was closed");
-            openedDoor.SetActive(false);
+            //openedDoor.SetActive(false);
             closedDoor.SetActive(true);
             UIText = closedText;
             isOpened = false;
@@ -62,19 +62,18 @@ public class Door : Interactable, IInteractable
         else
         {
             print($"{gameObject.name} was opened");
-            openedDoor.SetActive(true);
+            //openedDoor.SetActive(true);
             closedDoor.SetActive(false);
+            //gameObject.SetActive(false);
             UIText = openText;
             isOpened = true;
         }
     }
-
-    // Update is called once per frame
-    void Update()
+    
+    public void LockDoor()
     {
-        if (!isOpened && Input.GetMouseButtonDown(1))
+        if (!isOpened)
         {
-            KeyManager keyManager = keyManagerObj.GetComponent<KeyManager>();
             if (!keyManager.KeysPickedUp.ContainsKey(correctKey) || !keyManager.KeysPickedUp[correctKey] == true)
                 return;
 
@@ -91,7 +90,7 @@ public class Door : Interactable, IInteractable
                 print($"{gameObject.name} is now unlocked");
             }
         }
-        else if (isOpened && Input.GetMouseButtonDown(1))
+        else if (isOpened)
             print($"Please close {gameObject.name} before attempting to lock");
     }
 

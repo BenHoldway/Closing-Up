@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class RoomManager : MonoBehaviour
 {
-    public static RoomManager Instance;
+    private static RoomManager instance;
+    public static RoomManager Instance { get { return instance; } }
 
     SpawnInteractables[] rooms;
     [SerializeField] List<Task> tasks = new List<Task>();
@@ -27,12 +28,12 @@ public class RoomManager : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    void Awake()
+    void Start()
     {
-        if (Instance == null)
-            Instance = this;
+        if (instance == null)
+            instance = this;
         else
-            Destroy(Instance);
+            Destroy(instance);
 
         minTasks = 2; maxTasks = 4;
 
@@ -50,7 +51,7 @@ public class RoomManager : MonoBehaviour
     private void InitialiseTasks()
     {
         int totalTaskNum = 0;
-        float taskMultiplier = ShiftManager.DifficultyMultiplier;
+        float taskMultiplier = ShiftManager.Instance.DifficultyMultiplier;
 
         //Runs through each room and initialises a random amount of randomy types of tasks
         for (int i = 0; i < rooms.Length; i++)
