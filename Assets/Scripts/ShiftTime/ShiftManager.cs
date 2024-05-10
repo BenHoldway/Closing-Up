@@ -41,6 +41,8 @@ public class ShiftManager : MonoBehaviour
 
         shiftCount = 0;
         shiftTimeText.text = $"{TimeSpan.FromSeconds(ShiftStartTime).ToString(@"mm\:ss")}";
+
+        DifficultyMultiplier = 1.0f;
     }
 
     private void OnEnable()
