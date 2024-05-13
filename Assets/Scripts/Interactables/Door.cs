@@ -30,13 +30,13 @@ public class Door : Interactable, IInteractable
         }
         else if(isOpened)
         {
-            openedDoor.SetActive(true);
+            //openedDoor.SetActive(true);
             closedDoor.SetActive(false);
             UIText = openText;
         }
         else if(!isOpened && !isLocked)
         {
-            openedDoor.SetActive(false);
+            //openedDoor.SetActive(false);
             closedDoor.SetActive(true);
             UIText = closedText;
         }
@@ -47,6 +47,7 @@ public class Door : Interactable, IInteractable
         if (isLocked)
         {
             print($"{gameObject.name} is locked, unable to open");
+            UIText = lockedText;
             StartCoroutine(LockedText(false));
             return;
         }
@@ -70,7 +71,7 @@ public class Door : Interactable, IInteractable
         }
     }
     
-    public void LockDoor()
+    public void ChangeLockState()
     {
         if (!isOpened)
         {
@@ -119,10 +120,8 @@ public class Door : Interactable, IInteractable
         else
         {
             beforeText = nowLockedText;
-            afterText = openText;
+            afterText = closedText;
         }
-
-        print(beforeText + " " + afterText);
 
         UIText = beforeText;
 

@@ -8,7 +8,7 @@ public class PlayerInteract : MonoBehaviour
     PlayerMovement playerMovement;
 
     [SerializeField] bool isInteracting;
-    bool isLocking;
+    bool isChangingLockState;
 
     [SerializeField] float interactionRadius;
     [SerializeField] LayerMask interactionMask;
@@ -45,16 +45,16 @@ public class PlayerInteract : MonoBehaviour
             HandleClosestInteractable(true);
         };
 
-        playerControls.Player.Lock.performed += _ =>
+        playerControls.Player.Lock.started += _ =>
         {
-            isLocking = true;
+            isChangingLockState = true;
         };
 
-        playerControls.Player.Lock.canceled += _ =>
+/*        playerControls.Player.Lock.canceled += _ =>
         {
             isLocking = false;
             HandleClosestInteractable(true);
-        };
+        };*/
 
         TaskInteractable.EnablePlayerMovement += EnableMovement;
         TaskInteractable.DisablePlayerMovement += DisableMovement;
@@ -94,9 +94,9 @@ public class PlayerInteract : MonoBehaviour
 
         GetInteractPrompt?.Invoke(interactableCols[closestIndex].gameObject, promptUI);
 
-        if (isLocking)
+        if (isChangingLockState)
         {
-            LockDoorFunc(closestIndex);
+            ChangeDoorLockState(closestIndex);
             return;
         }
 
@@ -117,12 +117,13 @@ public class PlayerInteract : MonoBehaviour
         }
     }
 
-    void LockDoorFunc(int closestIndex)
+    void ChangeDoorLockState(int closestIndex)
     {
         Door door = interactableCols[closestIndex].gameObject.GetComponent<Door>();
         if (door != null)
         {
-            door.LockDoor();
+            door.ChangeLockState();
+            isChangingLockState = false;
             return;
         }
     }

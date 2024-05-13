@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class RoomManager : MonoBehaviour
 {
-    private static RoomManager instance;
-    public static RoomManager Instance { get { return instance; } }
-
     SpawnInteractables[] rooms;
     [SerializeField] List<Task> tasks = new List<Task>();
     [SerializeField] List<Task> pickedTasks = new List<Task>();
@@ -14,7 +11,7 @@ public class RoomManager : MonoBehaviour
     int minTasks;
     int maxTasks;
 
-    public static event Action<GameObject> SpawnInteractables;
+    public static event Action<GameObject> SpawnInteractablesInteractables;
     public static event Action<int> InitTasks;
 
     private void OnEnable()
@@ -30,11 +27,6 @@ public class RoomManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (instance == null)
-            instance = this;
-        else
-            Destroy(instance);
-
         minTasks = 2; maxTasks = 4;
 
         //Gets all the room children and their TaskPicker component to create an array of size rooms
@@ -67,7 +59,7 @@ public class RoomManager : MonoBehaviour
                 int randNum = UnityEngine.Random.Range(0, tasks.Count);
                 rooms[i].PickTask(tasks[randNum]);
             }
-            SpawnInteractables?.Invoke(rooms[i].gameObject);
+            SpawnInteractablesInteractables?.Invoke(rooms[i].gameObject);
         }
 
         InitTasks?.Invoke(totalTaskNum);

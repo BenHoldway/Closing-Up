@@ -28,7 +28,7 @@ public class SpawnInteractables : MonoBehaviour
 
     private void OnEnable()
     {
-        RoomManager.SpawnInteractables += SpawnInteractable;
+        RoomManager.SpawnInteractablesInteractables += SpawnInteractable;
     }
 
     // Update is called once per frame
@@ -102,7 +102,7 @@ public class SpawnInteractables : MonoBehaviour
         //Then stores all of the colliders in cols
         int numFound = Physics2D.OverlapCircleNonAlloc(spawnPoint, 0.1f, cols, floorLayer);
 
-        print($"{gameObject.name}: Spawn: {spawnPoint}, numFound: {numFound}");
+        //print($"{gameObject.name}: Spawn: {spawnPoint}, numFound: {numFound}");
 
         //Returns true if tilemap colliders are found, false if none have
         if (numFound == 0 && cols[0].gameObject.transform.IsChildOf(gameObject.transform))

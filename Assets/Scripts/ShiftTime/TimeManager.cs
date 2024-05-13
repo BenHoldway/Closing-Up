@@ -22,7 +22,6 @@ public class TimeManager : MonoBehaviour
             Destroy(Instance);
 
         playerControls = new PlayerControls();
-
     }
 
     private void OnEnable()
@@ -36,6 +35,7 @@ public class TimeManager : MonoBehaviour
         };
 
         ShiftManager.NextShiftEvent += ResetTime;
+        ShiftManager.CompleteShiftEvent += PauseTime;
     }
 
     private void OnDisable()
@@ -43,6 +43,7 @@ public class TimeManager : MonoBehaviour
         playerControls.Disable();
 
         ShiftManager.NextShiftEvent -= ResetTime;
+        ShiftManager.CompleteShiftEvent -= PauseTime;
     }
 
     // Update is called once per frame
@@ -51,9 +52,14 @@ public class TimeManager : MonoBehaviour
         CurrentTime += Time.fixedDeltaTime;
     }
 
-    void ResetTime()
+    void PauseTime()
     {
         Time.timeScale = 0;
+    }
+
+    void ResetTime()
+    {
+        Time.timeScale = 1;
         CurrentTime = 0;
     }
 }

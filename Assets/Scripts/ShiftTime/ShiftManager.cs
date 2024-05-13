@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using System;
+using UnityEngine.SceneManagement;
 
 public class ShiftManager : MonoBehaviour
 {
@@ -15,12 +16,14 @@ public class ShiftManager : MonoBehaviour
     public float ShiftCurrentTime { get; private set; }
     int lastTimeIncrement;
 
-    int shiftCount;
+    static int shiftCount;
 
     public float DifficultyMultiplier { get; private set; }
     [SerializeField] float hardestDifficulty;
 
     [SerializeField] TMP_Text shiftTimeText;
+    [SerializeField] GameObject shiftEndUI;
+    [SerializeField] TMP_Text shiftEndText;
 
     public static event Action CompleteShiftEvent;
     public static event Action NextShiftEvent;
@@ -34,13 +37,13 @@ public class ShiftManager : MonoBehaviour
             Destroy(instance);
 
 
-        ShiftStartTime = 21f * 60f;
+        ShiftStartTime = 22f * 60f;
         ShiftEndTime = 23f * 60f;
 
         ShiftCurrentTime = ShiftStartTime;
         lastTimeIncrement = 0;
 
-        shiftCount = 0;
+        shiftCount = 1;
         shiftTimeText.text = $"{TimeSpan.FromSeconds(ShiftStartTime).ToString(@"mm\:ss")}";
 
         DifficultyMultiplier = 1.0f;
@@ -79,16 +82,20 @@ public class ShiftManager : MonoBehaviour
 
     void CompleteShift()
     {
+        ShiftCurrentTime = ShiftStartTime;
         CompleteShiftEvent?.Invoke();
-        EndShift();
+
+        shiftEndUI.SetActive(true);
+        shiftEndText.text = $"End of Shift {shiftCount}";
+
     }
 
-    void EndShift()
+    public void EndShift()
     {
         NextShiftEvent?.Invoke();
         
         shiftCount++;
-        ShiftCurrentTime = ShiftStartTime;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
         lastTimeIncrement = 0;
 
         if (shiftCount % 2 == 0)
