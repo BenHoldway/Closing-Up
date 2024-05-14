@@ -43,10 +43,15 @@ public class ShiftManager : MonoBehaviour
         ShiftCurrentTime = ShiftStartTime;
         lastTimeIncrement = 0;
 
-        shiftCount = 1;
         shiftTimeText.text = $"{TimeSpan.FromSeconds(ShiftStartTime).ToString(@"mm\:ss")}";
 
         DifficultyMultiplier = 1.0f;
+
+        DataHolder shuttleObj = FindObjectOfType<DataHolder>();
+        if (shuttleObj == null)
+            shiftCount = 1;
+        else
+            shiftCount = shuttleObj.ShiftNum;
     }
 
     private void OnEnable()
@@ -88,6 +93,7 @@ public class ShiftManager : MonoBehaviour
         shiftEndUI.SetActive(true);
         shiftEndText.text = $"End of Shift {shiftCount}";
 
+        //DataHolder.ShiftNum = shiftCount;
     }
 
     public void EndShift()

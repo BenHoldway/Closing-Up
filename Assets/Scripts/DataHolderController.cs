@@ -4,22 +4,17 @@ using UnityEngine;
 
 public class DataHolderController : MonoBehaviour
 {
-    GameObject dataHolderPrefab;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [SerializeField] GameObject dataHolder;
 
     // Update is called once per frame
-    void Update()
+    void OnEnable()
     {
-        
+        ShiftManager.NextShiftEvent += SendData;
     }
 
-/*    void SaveData(string dataName, )
+    void SendData()
     {
+        Instantiate(dataHolder);
 
-    }*/
+    }
 }
