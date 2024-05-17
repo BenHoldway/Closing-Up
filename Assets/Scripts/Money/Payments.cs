@@ -52,15 +52,15 @@ public class Payments : MonoBehaviour
 
     void CompletedShift()
     {
-        SelectPayment(0);
+        SelectPayment(0, FamilyMember.ConditionType.None);
     }
 
-    void SelectPayment(int enumIndex)
+    void SelectPayment(int enumIndex, FamilyMember.ConditionType ignore)
     {
         PaymentEvent?.Invoke(paymentAmounts[(PaymentType)enumIndex], true);
     }
 
-    void DeselectPayment(int enumIndex) 
+    void DeselectPayment(int enumIndex, FamilyMember.ConditionType ignore) 
     {
         PaymentEvent?.Invoke(paymentAmounts[(PaymentType)enumIndex], false);
     }

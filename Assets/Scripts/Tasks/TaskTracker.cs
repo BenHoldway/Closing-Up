@@ -16,6 +16,8 @@ public class TaskTracker : MonoBehaviour
             Instance = this;
         else
             Destroy(this);
+
+        taskIndex = 0;
     }
 
     private void OnEnable()
@@ -23,8 +25,13 @@ public class TaskTracker : MonoBehaviour
         RoomManager.InitTasks += InitialiseTaskSize;
         TaskInteractable.NewTask += AddTask;
         TaskInteractable.TaskCompleted += RemoveTask;
+    }
 
-        taskIndex = 0;
+    private void OnDisable()
+    {
+        RoomManager.InitTasks -= InitialiseTaskSize;
+        TaskInteractable.NewTask -= AddTask;
+        TaskInteractable.TaskCompleted -= RemoveTask;
     }
 
     private void InitialiseTaskSize(int numTasks)
@@ -34,6 +41,9 @@ public class TaskTracker : MonoBehaviour
 
     void AddTask(TaskInteractable newTask)
     {
+        if (totalTasks[0] == null)
+            taskIndex = 0;
+
         totalTasks[taskIndex] = newTask;
         taskIndex++;
     }

@@ -7,7 +7,7 @@ public class MoneyManager : MonoBehaviour
 
     [SerializeField] int startingMoney;
     public int moneyAmout {  get; private set; }
-    int newMoney;
+    public int NewMoney {  get; set; }
 
 
     int moneyPerTask;
@@ -23,12 +23,17 @@ public class MoneyManager : MonoBehaviour
         else
             Destroy(gameObject);
 
-        moneyAmout = startingMoney;
-        newMoney = moneyAmout;
+        DataHolder shuttleObj = FindObjectOfType<DataHolder>();
+        if (shuttleObj == null)
+            moneyAmout = startingMoney;
+        else
+            moneyAmout = shuttleObj.Money;
+        
+        
+        NewMoney = moneyAmout;
         moneyPerTask = 5;
 
         ShiftManager.CompleteShiftEvent += IncreaseMoney;
-        ShiftManager.NextShiftEvent += NextShift;
         Payments.PaymentEvent += ChangeMoney;
     }
 
@@ -37,8 +42,8 @@ public class MoneyManager : MonoBehaviour
         int shiftMoney = moneyPerTask * TaskTracker.Instance.GetCompletedTasks();
         shiftMoneyText.text = shiftMoney.ToString();
 
-        newMoney += shiftMoney;
-        newMoneyText.text = newMoney.ToString();
+        NewMoney += shiftMoney;
+        newMoneyText.text = NewMoney.ToString();
         totalMoneyText.text = moneyAmout.ToString();
 
     }
@@ -46,15 +51,10 @@ public class MoneyManager : MonoBehaviour
     void ChangeMoney(int amount, bool isReduced)
     {
         if(isReduced)
-            newMoney -= amount;
+            NewMoney -= amount;
         else
-            newMoney += amount;
+            NewMoney += amount;
 
-        newMoneyText.text = newMoney.ToString();
-    }
-
-    void NextShift()
-    {
-        moneyAmout = newMoney;
+        newMoneyText.text = NewMoney.ToString();
     }
 }

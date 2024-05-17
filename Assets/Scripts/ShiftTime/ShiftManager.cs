@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using System;
-using UnityEngine.SceneManagement;
 
 public class ShiftManager : MonoBehaviour
 {
@@ -16,7 +15,7 @@ public class ShiftManager : MonoBehaviour
     public float ShiftCurrentTime { get; private set; }
     int lastTimeIncrement;
 
-    static int shiftCount;
+    public int ShiftCount { get; set; }
 
     public float DifficultyMultiplier { get; private set; }
     [SerializeField] float hardestDifficulty;
@@ -49,9 +48,9 @@ public class ShiftManager : MonoBehaviour
 
         DataHolder shuttleObj = FindObjectOfType<DataHolder>();
         if (shuttleObj == null)
-            shiftCount = 1;
+            ShiftCount = 1;
         else
-            shiftCount = shuttleObj.ShiftNum;
+            ShiftCount = shuttleObj.ShiftNum;
     }
 
     private void OnEnable()
@@ -91,20 +90,19 @@ public class ShiftManager : MonoBehaviour
         CompleteShiftEvent?.Invoke();
 
         shiftEndUI.SetActive(true);
-        shiftEndText.text = $"End of Shift {shiftCount}";
+        shiftEndText.text = $"End of Shift {ShiftCount}";
 
         //DataHolder.ShiftNum = shiftCount;
     }
 
     public void EndShift()
     {
+        ShiftCount++;
         NextShiftEvent?.Invoke();
-        
-        shiftCount++;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
+
         lastTimeIncrement = 0;
 
-        if (shiftCount % 2 == 0)
+        if (ShiftCount % 2 == 0)
             IncreaseMultiplier();
     }
 

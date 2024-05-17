@@ -31,6 +31,16 @@ public class SpawnInteractables : MonoBehaviour
         RoomManager.SpawnInteractablesInteractables += SpawnInteractable;
     }
 
+    private void OnDisable()
+    {
+        RoomManager.SpawnInteractablesInteractables -= SpawnInteractable;
+    }
+
+    private void Reset()
+    {
+        
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -63,7 +73,7 @@ public class SpawnInteractables : MonoBehaviour
 
     void SpawnInteractable(GameObject _room) 
     {
-        if(_room == gameObject)
+        if(_room == this.gameObject)
         {
             isAttemptingToSpawn = true;
             taskIndex = 0;

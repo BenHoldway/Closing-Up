@@ -13,8 +13,10 @@ public class ButtonSelection : MonoBehaviour
     [SerializeField] Sprite unselectedSprite;
     [SerializeField] Sprite selectedSprite;
 
-    public static event Action<int> Selected;
-    public static event Action<int> Deselected;
+    [SerializeField] FamilyMember.ConditionType condition;
+
+    public static event Action<int, FamilyMember.ConditionType> Selected;
+    public static event Action<int, FamilyMember.ConditionType> Deselected;
 
     private void Start()
     {
@@ -27,12 +29,12 @@ public class ButtonSelection : MonoBehaviour
 
         if(isSelected)
         {
-            Selected?.Invoke((int)paymentType);
+            Selected?.Invoke((int)paymentType, condition);
             image.sprite = selectedSprite;
         }
         else
         { 
-            Deselected?.Invoke((int)paymentType);
+            Deselected?.Invoke((int)paymentType, condition);
             image.sprite = unselectedSprite;
         }
     }

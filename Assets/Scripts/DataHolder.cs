@@ -1,19 +1,31 @@
+using System;
 using UnityEngine;
 
 public class DataHolder : MonoBehaviour
 { 
-    public int ShiftNum { get { return ShiftNum; } set { ShiftNum = value; } }
-    public int Money { get { return Money; } set { Money = value; } }
-    public FamilyMember[] FamilyMembers { get { return FamilyMembers; } set { FamilyMembers = value; } }
+    public int ShiftNum { get; set; }
+    public int Money { get; set; }
+    public FamilyMember[] FamilyMembers { get; set; }
 
-    void Start()
+    void Awake()
     {
         DontDestroyOnLoad(gameObject);
+        FamilyMembers = new FamilyMember[3];
     }
 
-    DataHolder(int _shiftNum, int _money) 
+    private void OnEnable()
+    {
+        DataHolderController.SendDataEvent += SaveData;
+    }
+
+    public void SaveData(int _shiftNum, int _money, FamilyMember[] family) 
     { 
         ShiftNum = _shiftNum;
         Money = _money;
+
+        for(int i = 0; i < family.Length; i++) 
+        {
+            FamilyMembers[i] = family[i];
+        }
     }
 }
