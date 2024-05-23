@@ -15,12 +15,15 @@ public class FamilyMember
         None
     }
 
+    public string name;
+
     public float hunger;
     public float warmth;
     public float health;
 
-    public FamilyMember(float _hunger, float _warmth, float _health)
+    public FamilyMember(string _name, float _hunger, float _warmth, float _health)
     {
+        name = _name;
         hunger = _hunger;
         warmth = _warmth;
         health = _health;
@@ -62,6 +65,7 @@ public class FamilyConditions : MonoBehaviour
     [SerializeField] float reductionAmount;
     [SerializeField] float increaseAmount;
 
+    public static event Action FamilyUpdated;
     public static event Action ReloadScene;
 
     // Start is called before the first frame update
@@ -78,7 +82,23 @@ public class FamilyConditions : MonoBehaviour
         if (shuttleObj == null)
         {
             for (int i = 0; i < familyMembers; i++)
-                family[i] = new FamilyMember(100, 100, 100);
+            {
+                string name = "";
+                switch (i)
+                { 
+                    case 0:
+                        name = "Wife";
+                        break;
+                    case 1:
+                        name = "Son";
+                        break;
+                    case 2:
+                        name = "Daughter";
+                        break;
+                }
+
+                family[i] = new FamilyMember(name, 100, 100, 100);
+            }
         }
         else
         {
@@ -126,6 +146,7 @@ public class FamilyConditions : MonoBehaviour
         for (int i = 0; i < familyMembers; i++)
             family[i].ReduceAmounts(reductionAmount);
 
+        FamilyUpdated?.Invoke();
         DisplayConditions();
     }
 

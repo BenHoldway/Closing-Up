@@ -54,6 +54,10 @@ public class Door : Interactable, IInteractable
 
         else if (isOpened)
         {
+            Collider2D col = gameObject.GetComponent<Collider2D>();
+            if (col.isTrigger)
+                col.isTrigger = false;
+
             print($"{gameObject.name} was closed");
             //openedDoor.SetActive(false);
             closedDoor.SetActive(true);
@@ -62,6 +66,10 @@ public class Door : Interactable, IInteractable
         }
         else
         {
+            Collider2D col = gameObject.GetComponent<Collider2D>();
+            if (!col.isTrigger)
+                col.isTrigger = true;
+
             print($"{gameObject.name} was opened");
             //openedDoor.SetActive(true);
             closedDoor.SetActive(false);

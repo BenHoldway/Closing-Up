@@ -6,7 +6,7 @@ public class KeyManager : MonoBehaviour
 {
     public enum KeyTypes 
     { 
-        office1, office2, office3, office4,
+        Entrance_WorkSpace, Entrance_BreakRoom, BreakRoom_WorkSpace, WorkSpace_Kitchen, WorkSpace_MeetingRoom
     }
 
     Dictionary<KeyTypes, bool> keysPickedUp = new Dictionary<KeyTypes, bool>();
@@ -23,10 +23,11 @@ public class KeyManager : MonoBehaviour
 
     private void Awake()
     {
-        keysPickedUp.Add(KeyTypes.office1, false);
-        keysPickedUp.Add(KeyTypes.office2, false);
-        keysPickedUp.Add(KeyTypes.office3, false);
-        keysPickedUp.Add(KeyTypes.office4, false);
+        keysPickedUp.Add(KeyTypes.Entrance_WorkSpace, false);
+        keysPickedUp.Add(KeyTypes.Entrance_BreakRoom, false);
+        keysPickedUp.Add(KeyTypes.BreakRoom_WorkSpace, false);
+        keysPickedUp.Add(KeyTypes.WorkSpace_Kitchen, false);
+        keysPickedUp.Add(KeyTypes.WorkSpace_MeetingRoom, false);
     }
 
     // Update is called once per frame
@@ -39,17 +40,20 @@ public class KeyManager : MonoBehaviour
     {
         switch(type) 
         {
-            case KeyTypes.office1:
-                keysPickedUp[KeyTypes.office1] = true;
+            case KeyTypes.Entrance_WorkSpace:
+                keysPickedUp[KeyTypes.Entrance_WorkSpace] = true;
                 break;
-            case KeyTypes.office2:
-                keysPickedUp[KeyTypes.office2] = true;
+            case KeyTypes.Entrance_BreakRoom:
+                keysPickedUp[KeyTypes.Entrance_BreakRoom] = true;
                 break;
-            case KeyTypes.office3:
-                keysPickedUp[KeyTypes.office3] = true;
+            case KeyTypes.BreakRoom_WorkSpace:
+                keysPickedUp[KeyTypes.BreakRoom_WorkSpace] = true;
                 break;
-            case KeyTypes.office4:
-                keysPickedUp[KeyTypes.office4] = true;
+            case KeyTypes.WorkSpace_Kitchen:
+                keysPickedUp[KeyTypes.WorkSpace_Kitchen] = true;
+                break;
+            case KeyTypes.WorkSpace_MeetingRoom:
+                keysPickedUp[KeyTypes.WorkSpace_MeetingRoom] = true;
                 break;
         }
     }

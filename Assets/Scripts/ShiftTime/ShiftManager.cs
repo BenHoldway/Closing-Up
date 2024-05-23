@@ -76,7 +76,7 @@ public class ShiftManager : MonoBehaviour
             seconds += minutes * 60;
 
         //Increase shift time by 5, every 2 seconds
-        if(lastTimeIncrement + 1 <= seconds)
+        if(lastTimeIncrement + 0.5 <= seconds)
         {
             ShiftCurrentTime += 5;
             lastTimeIncrement = seconds;
@@ -91,8 +91,6 @@ public class ShiftManager : MonoBehaviour
 
         shiftEndUI.SetActive(true);
         shiftEndText.text = $"End of Shift {ShiftCount}";
-
-        //DataHolder.ShiftNum = shiftCount;
     }
 
     public void EndShift()

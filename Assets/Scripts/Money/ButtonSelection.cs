@@ -10,6 +10,7 @@ public class ButtonSelection : MonoBehaviour
     bool isSelected;
 
     [SerializeField] Payments.PaymentType paymentType;
+    public Payments.PaymentType PaymentTypeVar { get { return paymentType; } set { paymentType = value; } }
     [SerializeField] Sprite unselectedSprite;
     [SerializeField] Sprite selectedSprite;
 

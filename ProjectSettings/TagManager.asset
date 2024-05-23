@@ -15,7 +15,7 @@ TagManager:
   - Floor
   - Shadowcaster
   - Lighting
-  - 
+  - SpawnableRoom
   - 
   - 
   - 
@@ -38,6 +38,18 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: WorkSpace
+    uniqueID: 401503427
+    locked: 0
+  - name: MeetingRoom
+    uniqueID: 790446119
+    locked: 0
+  - name: Kitchen
+    uniqueID: 3070934173
+    locked: 0
+  - name: BreakRoom
+    uniqueID: 920916387
+    locked: 0
   - name: SideRoom2
     uniqueID: 1906871775
     locked: 0

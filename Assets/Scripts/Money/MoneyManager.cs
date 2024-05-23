@@ -32,9 +32,18 @@ public class MoneyManager : MonoBehaviour
         
         NewMoney = moneyAmout;
         moneyPerTask = 5;
+    }
 
+    private void OnEnable()
+    {
         ShiftManager.CompleteShiftEvent += IncreaseMoney;
         Payments.PaymentEvent += ChangeMoney;
+    }
+
+    private void OnDisable()
+    {
+        ShiftManager.CompleteShiftEvent -= IncreaseMoney;
+        Payments.PaymentEvent -= ChangeMoney;
     }
 
     void IncreaseMoney()

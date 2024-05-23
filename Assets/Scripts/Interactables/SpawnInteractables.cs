@@ -115,7 +115,7 @@ public class SpawnInteractables : MonoBehaviour
         //print($"{gameObject.name}: Spawn: {spawnPoint}, numFound: {numFound}");
 
         //Returns true if tilemap colliders are found, false if none have
-        if (numFound == 0 && cols[0].gameObject.transform.IsChildOf(gameObject.transform))
+        if ((numFound == 0 || numFound > 1) || !cols[0].gameObject.transform.IsChildOf(gameObject.transform))
             return false;
         else
             return true;
