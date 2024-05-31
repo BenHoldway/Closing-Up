@@ -1,6 +1,6 @@
 using System;
-using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerInteract : MonoBehaviour
 {
@@ -8,7 +8,6 @@ public class PlayerInteract : MonoBehaviour
     PlayerMovement playerMovement;
 
     [SerializeField] bool isInteracting;
-    bool isChangingLockState;
 
     [SerializeField] float interactionRadius;
     [SerializeField] LayerMask interactionMask;
@@ -18,9 +17,10 @@ public class PlayerInteract : MonoBehaviour
     [SerializeField] GameObject promptUI;
 
     public static event Action<GameObject, GameObject> GetInteractPrompt;
-    public static event Action<GameObject> LockDoor;
 
     int numFound;
+    int closest;
+
     Interactable interactable;
     IInteractable iInteractable;
 
@@ -34,105 +34,106 @@ public class PlayerInteract : MonoBehaviour
     {
         playerControls.Enable();
 
-        playerControls.Player.Interact.started += _ => 
-        { 
-            isInteracting = true;
-        };
+        playerControls.Player.Interact.started += Interact;
+        playerControls.Player.Interact.canceled += StopInteract;
 
-        playerControls.Player.Interact.canceled += _ => 
-        { 
-            isInteracting = false;
-            HandleClosestInteractable(true);
-        };
-
-        playerControls.Player.Lock.started += _ =>
-        {
-            isChangingLockState = true;
-        };
-
-/*        playerControls.Player.Lock.canceled += _ =>
-        {
-            isLocking = false;
-            HandleClosestInteractable(true);
-        };*/
+        playerControls.Player.Lock.started += ChangeDoorLockState;
 
         TaskInteractable.EnablePlayerMovement += EnableMovement;
         TaskInteractable.DisablePlayerMovement += DisableMovement;
+        Key.HidePromptUI += HideUI;
+
+        ShiftManager.CompleteShiftEvent += DisableInteract;
     }
 
     private void OnDisable()
     {
         playerControls.Disable();
 
+        playerControls.Player.Interact.started -= Interact;
+        playerControls.Player.Interact.canceled -= StopInteract;
+
+        playerControls.Player.Lock.started -= ChangeDoorLockState;
+
         TaskInteractable.EnablePlayerMovement -= EnableMovement;
         TaskInteractable.DisablePlayerMovement -= DisableMovement;
+        Key.HidePromptUI -= HideUI;
+
+        ShiftManager.CompleteShiftEvent -= DisableInteract;
     }
 
     // Update is called once per frame
     void Update()
     {
+        //Get amount of interactables in range
         numFound = Physics2D.OverlapCircleNonAlloc(transform.position, interactionRadius, interactableCols, interactionMask);
 
         if (numFound > 0)
-            HandleClosestInteractable(false);
-        else
-        {
-            if(promptUI.activeSelf)
-                promptUI.SetActive(false);
-        }
-                
+            HandleClosestInteractable();
+        else if (promptUI.activeSelf)
+            HideUI(false);
     }
 
-    void HandleClosestInteractable(bool stopInteracting)
+    void HandleClosestInteractable()
     {
-        int closestIndex = GetClosest();
-        
-        if (interactableCols[closestIndex] == null)
+        GetClosest();
+
+        Collider2D closestCol = interactableCols[closest];
+        if (closestCol == null)
             return;
 
-        iInteractable = interactableCols[closestIndex].GetComponent<IInteractable>();
-
-        GetInteractPrompt?.Invoke(interactableCols[closestIndex].gameObject, promptUI);
-
-        if (isChangingLockState)
-        {
-            ChangeDoorLockState(closestIndex);
+        TaskInteractable taskInteractable = closestCol.gameObject.GetComponent<TaskInteractable>();
+        if (taskInteractable != null && taskInteractable.IsCompleted)
             return;
-        }
 
-        if (isInteracting)
-        {
-            if (iInteractable != null)
-            {
-                iInteractable.Interact();
-                isInteracting = false;
-            }
-        }
-        else if(stopInteracting)
-        {
-            interactable = interactableCols[closestIndex].GetComponent<Interactable>();
+        //Gets the Interface component of the object
+        iInteractable = closestCol.GetComponent<IInteractable>();
 
-            if (interactable.IsATaskInteractable)
-                interactable.StopInteracting();
+        //Notify that interact UI is needed to be shown
+        GetInteractPrompt?.Invoke(closestCol.gameObject, promptUI);
+    }
+
+    void Interact(InputAction.CallbackContext context)
+    {
+        //Call the interactable interface Interact() method
+        if (iInteractable != null)
+        {
+            iInteractable.Interact();
+            isInteracting = true;
         }
     }
 
-    void ChangeDoorLockState(int closestIndex)
+    void StopInteract(InputAction.CallbackContext context)
     {
-        Door door = interactableCols[closestIndex].gameObject.GetComponent<Door>();
+        if (!isInteracting)
+            return;
+
+        isInteracting = false;
+        interactable = interactableCols[closest].GetComponent<Interactable>();
+
+        //If interactable is a task, call the stop interacting method
+        if (interactable.IsATaskInteractable)
+            interactable.StopInteracting();
+    }
+
+    //Change the door lock state if the interactable object is a door
+    void ChangeDoorLockState(InputAction.CallbackContext context)
+    {
+        if (interactableCols[closest] == null)
+            return;
+
+        Door door = interactableCols[closest].gameObject.GetComponent<Door>();
+
         if (door != null)
-        {
             door.ChangeLockState();
-            isChangingLockState = false;
-            return;
-        }
     }
 
-    private int GetClosest()
+    void GetClosest()
     {
         float dis = 1000;
-        int closestCol = 0;
-        foreach(Collider2D col in interactableCols) 
+
+        //Run through each interactable, and see which one is closest
+        foreach (Collider2D col in interactableCols)
         {
             if (col == null)
                 continue;
@@ -141,22 +142,40 @@ public class PlayerInteract : MonoBehaviour
             if (newDis < dis)
             {
                 dis = newDis;
-                closestCol = System.Array.IndexOf(interactableCols, col);
+                closest = Array.IndexOf(interactableCols, col);
             }
-
         }
-
-        return closestCol;
     }
 
     void EnableMovement()
     {
         playerMovement.enabled = true;
+        isInteracting = false;
     }
 
     void DisableMovement()
     {
         playerMovement.enabled = false;
+    }
+
+    //Called to hide the interact prompt UI
+    void HideUI(bool gotKey)
+    {
+        Collider2D closestCol = interactableCols[closest];
+
+        //Hide if closest interactable does not exist anymore
+        if (closestCol == null)
+            promptUI.SetActive(false);
+        //Return if interactable is a key and has not been fully collected yet
+        else if (closestCol.gameObject.GetComponent<Key>() != null && !gotKey)
+            return;
+
+        promptUI.SetActive(false);
+    }
+
+    void DisableInteract()
+    {
+        this.enabled = false;
     }
 
 

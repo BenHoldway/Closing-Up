@@ -26,6 +26,7 @@ public class ShiftManager : MonoBehaviour
 
     public static event Action CompleteShiftEvent;
     public static event Action NextShiftEvent;
+    public static event Action EndDay;
 
     // Start is called before the first frame update
     void Awake()
@@ -35,9 +36,8 @@ public class ShiftManager : MonoBehaviour
         else
             Destroy(instance);
 
-
-        ShiftStartTime = 22f * 60f;
-        ShiftEndTime = 23f * 60f;
+        ShiftStartTime = 16f * 60f; //Time for 4pm
+        ShiftEndTime = 23f * 60f; //Time for 11pm
 
         ShiftCurrentTime = ShiftStartTime;
         lastTimeIncrement = 0;
@@ -51,32 +51,37 @@ public class ShiftManager : MonoBehaviour
             ShiftCount = 1;
         else
             ShiftCount = shuttleObj.ShiftNum;
+
+        shiftEndUI.SetActive(false);
     }
 
     private void OnEnable()
     {
-        TimeManager.UnpausedTime += NextShift;
+        FamilyConditions.ConditionsUpdated += UpdateShiftCount;
     }
 
     private void OnDisable()
     {
-        TimeManager.UnpausedTime -= NextShift;
+        FamilyConditions.ConditionsUpdated -= UpdateShiftCount;
     }
 
     // Update is called once per frame
     void Update()
     {
+        //If time is over the shift end time, call complete shift method
         if (ShiftCurrentTime >= ShiftEndTime)
             CompleteShift();
 
+        //Get minutes and seconds from current time
         int minutes = TimeSpan.FromSeconds(TimeManager.Instance.CurrentTime).Minutes;
         int seconds = TimeSpan.FromSeconds(TimeManager.Instance.CurrentTime).Seconds;
 
+        //Get seconds from amount of minutes
         if (minutes != 0)
             seconds += minutes * 60;
 
         //Increase shift time by 5, every 2 seconds
-        if(lastTimeIncrement + 0.5 <= seconds)
+        if(lastTimeIncrement + 2 <= seconds)
         {
             ShiftCurrentTime += 5;
             lastTimeIncrement = seconds;
@@ -84,6 +89,7 @@ public class ShiftManager : MonoBehaviour
         }
     }
 
+    //Show shift end UI (with payments etc) and notify that the shift has ended
     void CompleteShift()
     {
         ShiftCurrentTime = ShiftStartTime;
@@ -93,25 +99,29 @@ public class ShiftManager : MonoBehaviour
         shiftEndText.text = $"End of Shift {ShiftCount}";
     }
 
+    //Notify that the Next Shift button has been pressed
     public void EndShift()
     {
-        ShiftCount++;
         NextShiftEvent?.Invoke();
+    }
+
+    //Finalises the day and increases shift counter
+    void UpdateShiftCount()
+    {
+        ShiftCount++;
 
         lastTimeIncrement = 0;
 
+        //If shift count is even, then increase difficulty
         if (ShiftCount % 2 == 0)
             IncreaseMultiplier();
-    }
 
-    void NextShift()
-    {
-        shiftTimeText.text = $"{TimeSpan.FromSeconds(ShiftCurrentTime).ToString(@"mm\:ss")}";
+        EndDay?.Invoke();
     }
 
     //Increase difficulty
     void IncreaseMultiplier()
     {
-        DifficultyMultiplier = Mathf.Clamp(DifficultyMultiplier += 0.75f, 1, hardestDifficulty);
+        DifficultyMultiplier = Mathf.Clamp(DifficultyMultiplier += 0.2f, 1, hardestDifficulty);
     }
 }

@@ -26,7 +26,6 @@ public class PlayerMovement : MonoBehaviour
         playerControls.Enable();
 
         playerControls.Player.Move.performed += ctx => { movement = ctx.ReadValue<Vector2>(); };
-
         playerControls.Player.Move.canceled += ctx => { movement = Vector2.zero; };
     }
 
@@ -40,14 +39,17 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //Move player from input
         rb.velocity = movement * speed;
 
+        //If movement is opposite to the way the player is facing, flip the player
         if ((movement.x > 0 && !isFacingRight) || (movement.x < 0 && isFacingRight))
             Flip();
     }
 
     void Flip()
     {
+        //Get x local scale and flip it, flipping the player
         isFacingRight = !isFacingRight;
         Vector3 localScale = transform.localScale;
         localScale.x *= -1;

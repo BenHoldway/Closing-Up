@@ -5,7 +5,7 @@ using UnityEngine.Rendering.Universal;
 
 public class LightSwitch : Interactable, IInteractable
 {
-    [SerializeField] bool lightIsOn;
+    public bool LightIsOn {  get; private set; }
 
     [SerializeField] GameObject lightParent;
     GameObject[] lights;
@@ -16,17 +16,29 @@ public class LightSwitch : Interactable, IInteractable
     // Start is called before the first frame update
     void Start()
     {
+        //Randomly sets each one to be on or off
+        int randNum = UnityEngine.Random.Range(0, 2);
+
+        if (randNum == 0)
+            LightIsOn = false;
+        else
+            LightIsOn = true;
+
         GetAllLights();
 
+        //Set each light to be on/off depending on bool state
         foreach (GameObject light in lights)
-            light.SetActive(lightIsOn);
+            light.SetActive(LightIsOn);
 
-        if (lightIsOn)
+        //Prompt UI text set to "Turn Off"
+        if (LightIsOn)
             UIText = onText;
+        //Prompt UI text set to "Turn On"
         else
             UIText = offText;
     }
 
+    //Gets all the lights related to this switch
     void GetAllLights()
     {
         Light2D[] children = lightParent.GetComponentsInChildren<Light2D>();
@@ -38,29 +50,23 @@ public class LightSwitch : Interactable, IInteractable
 
     public void Interact()
     {
-        if (lightIsOn)
+        //Turn all lights off
+        if (LightIsOn)
         {
-            print($"{gameObject.name} was switched off");
-            lightIsOn = false;
+            LightIsOn = false;
             UIText = offText;
 
             foreach(GameObject light in lights)
                 light.SetActive(false);
         }
+        //Turn all lights on
         else
         {
-            print($"{gameObject.name} was switched on");
-            lightIsOn = true;
+            LightIsOn = true;
             UIText = onText;
 
             foreach (GameObject light in lights)
                 light.SetActive(true);
         }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

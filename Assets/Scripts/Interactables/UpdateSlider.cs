@@ -10,7 +10,9 @@ public class UpdateSlider : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //Set slider value to 0 to begin with
         slider = GetComponent<Slider>();
+        slider.value = 0;
     }
 
     // Update is called once per frame
@@ -26,6 +28,7 @@ public class UpdateSlider : MonoBehaviour
 
     void UpdateFill(float _value)
     {
+        //Update slider value with value passed in
         slider.value = _value;
     }
 }

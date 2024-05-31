@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 
+//Interface for any objects that can be interacted with
 public interface IInteractable 
 {
     public void Interact();
@@ -23,7 +24,8 @@ public class Interactable : MonoBehaviour
         PlayerInteract.GetInteractPrompt -= GetUIPrompt;
     }
 
-    protected void GetUIPrompt(GameObject interactObj, GameObject promptUI)
+    //Enables prompt UI and sets text to be the interaction
+    public virtual void GetUIPrompt(GameObject interactObj, GameObject promptUI)
     {
         if(interactObj == gameObject)
         {
@@ -32,6 +34,7 @@ public class Interactable : MonoBehaviour
         }
     }
 
+    //Method to stop the interaction
     public virtual void StopInteracting() { }
 
     private void OnDrawGizmos()

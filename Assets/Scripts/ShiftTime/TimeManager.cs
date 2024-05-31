@@ -7,11 +7,7 @@ public class TimeManager : MonoBehaviour
 {
     public static TimeManager Instance;
 
-    PlayerControls playerControls;
-
     public float CurrentTime {  get; private set; }
-
-    public static event Action UnpausedTime;
 
     // Start is called before the first frame update
     void Awake()
@@ -21,32 +17,20 @@ public class TimeManager : MonoBehaviour
         else
             Destroy(Instance);
 
-        playerControls = new PlayerControls();
+        ResetTime();
     }
 
     private void OnEnable()
     {
-        playerControls.Enable();
-
-        playerControls.UI.NextShift.performed += _ =>
-        {
-            Time.timeScale = 1;
-            UnpausedTime?.Invoke();
-        };
-
-        ShiftManager.NextShiftEvent += ResetTime;
         ShiftManager.CompleteShiftEvent += PauseTime;
     }
 
     private void OnDisable()
     {
-        playerControls.Disable();
-
-        ShiftManager.NextShiftEvent -= ResetTime;
         ShiftManager.CompleteShiftEvent -= PauseTime;
     }
 
-    // Update is called once per frame
+    //Increase current time with Unity time progression
     void FixedUpdate()
     {
         CurrentTime += Time.fixedDeltaTime;

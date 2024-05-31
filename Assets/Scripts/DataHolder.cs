@@ -18,6 +18,12 @@ public class DataHolder : MonoBehaviour
         DataHolderController.SendDataEvent += SaveData;
     }
 
+    private void OnDisable()
+    {
+        DataHolderController.SendDataEvent -= SaveData;
+    }
+
+    //Saves all the data that is passed in
     public void SaveData(int _shiftNum, int _money, FamilyMember[] family) 
     { 
         ShiftNum = _shiftNum;

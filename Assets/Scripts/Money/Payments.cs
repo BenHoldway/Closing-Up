@@ -3,27 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Payments : MonoBehaviour
 {
-    public enum PaymentType 
-    { 
-        Rent,
-        Heating,
-        Water,
-        Food,
-        Wife_Medicine,
-        Son_Medicine,
-        Daughter_Medicine,
-        AmountOfPayments
-    }
-
-    [SerializeField] GameObject paymentPrefab;
-    [SerializeField] GameObject paymentParent;
-
-    Dictionary<PaymentType, int> paymentAmounts = new Dictionary<PaymentType, int>();
+    [SerializeField] List<PaymentTypes> paymentAmounts = new List<PaymentTypes>();
     [SerializeField] List<TMP_Text> paymentTexts = new List<TMP_Text>();
+    [SerializeField] TMP_Text reductionText;
 
     public static event Action<int, bool> PaymentEvent;
 
@@ -32,6 +17,7 @@ public class Payments : MonoBehaviour
         int rentAmount = 0;
         int shift = ShiftManager.Instance.ShiftCount;
 
+        //Change rent amount depending on shift number
         if (shift < 5)
             rentAmount = 20;
         else if (shift < 10)
@@ -41,78 +27,116 @@ public class Payments : MonoBehaviour
         else
             rentAmount = 50;
 
-        paymentAmounts.Add(PaymentType.Rent, rentAmount);
-        paymentAmounts.Add(PaymentType.Heating, 10);
-        paymentAmounts.Add(PaymentType.Water, 10);
-        paymentAmounts.Add(PaymentType.Food, 15);
+        //Set rent amount
+        foreach(PaymentTypes paymentType in paymentAmounts)
+        {
+            if(paymentType.type == PaymentTypes.PaymentType.Rent)
+                paymentType.value = rentAmount;
+        }
     }
 
     private void OnEnable()
     {
-        FamilyConditions.FamilyUpdated += CompletedShift;
+        ShiftManager.CompleteShiftEvent += CompletedShift;
         ButtonSelection.Selected += SelectPayment;
         ButtonSelection.Deselected += DeselectPayment;
+        MoneyManager.ShowReductionAmount += ReductionText;
     }
 
     private void OnDisable()
     {
-        FamilyConditions.FamilyUpdated -= CompletedShift;
+        ShiftManager.CompleteShiftEvent -= CompletedShift;
         ButtonSelection.Selected -= SelectPayment;
         ButtonSelection.Deselected -= DeselectPayment;
+        MoneyManager.ShowReductionAmount -= ReductionText;
     }
 
     void CompletedShift()
     {
+        //Make rent payment
         SelectPayment(0, FamilyMember.ConditionType.None);
 
-        int index = 6;
-        for (int i = 0; i < FamilyConditions.Instance.Family.Length; i++)
-        {
-            if (FamilyConditions.Instance.Family[i].health < 40)
-            {
-                int medicineCost = 5;
-
-                if (FamilyConditions.Instance.Family[i].health < 20)
-                    medicineCost = 15;
-
-                GameObject newPayment = Instantiate(paymentPrefab, paymentParent.transform, false);
-                newPayment.transform.SetSiblingIndex(index);
-                index++;
-
-                paymentTexts.Add(newPayment.transform.GetChild(1).GetComponent<TMP_Text>());
-                newPayment.transform.GetChild(0).GetComponent<TMP_Text>().text = $"Medicine ({FamilyConditions.Instance.Family[i].name})";
-
-                PaymentType type;
-                if (i == 0)
-                    type = PaymentType.Wife_Medicine;
-                else if (i == 1)
-                    type = PaymentType.Son_Medicine;
-                else
-                    type = PaymentType.Daughter_Medicine;
-
-                paymentAmounts.Add(type, medicineCost);
-                newPayment.transform.GetChild(2).GetComponent<ButtonSelection>().PaymentTypeVar = type;
-            }
-        }
+        CheckFamilyHealth();
 
         int paymentIndex = 0;
-        for (int i = 0; i < (int)PaymentType.AmountOfPayments; i++)
+        //Run through each payment type
+        for (int i = 0; i < paymentAmounts.Count; i++)
         {
-            if (!paymentAmounts.ContainsKey((PaymentType)i))
+            //If this payment is not available, continue on to the next one
+            if (!paymentAmounts[i].isActive)
                 continue;
 
-            paymentTexts[paymentIndex].text = paymentAmounts[(PaymentType)i].ToString();
+            //Show the value of each visible payment
+            paymentTexts[paymentIndex].text = paymentAmounts[i].value.ToString();
             paymentIndex++;
         }
     }
 
-    void SelectPayment(int enumIndex, FamilyMember.ConditionType ignore)
+    //Show reduction amount
+    void ReductionText(int amount)
     {
-        PaymentEvent?.Invoke(paymentAmounts[(PaymentType)enumIndex], true);
+        reductionText.text = $"- {amount}";
     }
 
+    void CheckFamilyHealth()
+    {
+        //Run through each family member
+        for (int i = 0; i < FamilyConditions.Instance.Family.Length; i++)
+        {
+            FamilyMember familyMember = FamilyConditions.Instance.Family[i];
+            //If their health is below 40, set up the medicine payment for them
+            if (familyMember.health < 40)
+            {
+                int medicineCost = 5;
+
+                //If their health is more critical, increase the cost of medicine
+                if (familyMember.health < 20)
+                    medicineCost = 15;
+
+                //Instantiate the payment UI, and set the child order
+                GameObject newPayment = familyMember.medicineUI;
+                newPayment.SetActive(true);
+
+                //Update the payment name to tell the player which family member it is
+                newPayment.transform.GetChild(0).GetComponent<TMP_Text>().text = $"Medicine ({FamilyConditions.Instance.Family[i].name})";
+
+                //Change the type of the medicine depending on which family member it is
+                PaymentTypes.PaymentType type;
+                if (i == 0)
+                    type = PaymentTypes.PaymentType.Wife_Medicine;
+                else if (i == 1)
+                    type = PaymentTypes.PaymentType.Son_Medicine;
+                else
+                    type = PaymentTypes.PaymentType.Daughter_Medicine;
+
+                //Update the payment amount for medicine
+                foreach(PaymentTypes paymentType in paymentAmounts)
+                {
+                    if (paymentType.type == type)
+                    {
+                        paymentType.value = medicineCost;
+                        paymentType.isActive = true;
+                    }
+                }
+
+                //Pass in the payment type to the button
+                newPayment.transform.GetChild(2).GetComponent<ButtonSelection>().PaymentTypeVar = paymentAmounts[i+4];
+            }
+            //Disable medicine payment if not needed
+            else if(familyMember.medicineUI.activeSelf) 
+                familyMember.medicineUI.SetActive(false);
+        }
+    }
+
+    //Notify that payment has been selected
+    void SelectPayment(int enumIndex, FamilyMember.ConditionType ignore)
+    {
+        PaymentEvent?.Invoke(paymentAmounts[enumIndex].value, true);
+    }
+
+    //Notify that payment has been deselected
     void DeselectPayment(int enumIndex, FamilyMember.ConditionType ignore) 
     {
-        PaymentEvent?.Invoke(paymentAmounts[(PaymentType)enumIndex], false);
+        PaymentEvent?.Invoke(paymentAmounts[enumIndex].value, false);
     }
 }

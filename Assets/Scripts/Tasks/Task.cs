@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Task", menuName = "ScriptableObjects/Tasks", order = 1)]
@@ -7,16 +8,9 @@ public class Task : ScriptableObject
     {
         Cleaning = 0,
         PickingUp = 1,
+        Electronic = 2,
         NumOfTasks
     }
-
-/*    public enum Room
-    {
-        Entrance,
-        SideRoom1,
-        SideRoom2,
-        NumOfRooms
-    }*/
 
     [SerializeField] string taskName;
     public string TaskName { get { return taskName; } private set { taskName = value; } }
@@ -24,8 +18,8 @@ public class Task : ScriptableObject
     [SerializeField] TaskType type;
     public TaskType Type { get { return type; } private set { type = value; } }
 
-    [SerializeField] Sprite sprite;
-    public Sprite SpriteAsset { get {  return sprite; } private set { sprite = value; } }
+    [SerializeField] List<Sprite> sprite = new List<Sprite>();
+    public List<Sprite> SpriteAsset { get {  return sprite; } private set { sprite = value; } }
 
     [SerializeField][TextArea] string uIText;
     public string UIText { get { return uIText; } private set { uIText = value; } }
@@ -33,6 +27,6 @@ public class Task : ScriptableObject
     [SerializeField] float completionTime;
     public float CompletionTime { get {  return completionTime; } private set {  completionTime = value; } }
 
-    /*    [SerializeField] Room roomPos;
-        public Room RoomPos { get { return roomPos; } set { roomPos = value; } }*/
+    [SerializeField] AudioClip clip;
+    public AudioClip Clip { get { return clip; } private set { clip = value; } }
 }

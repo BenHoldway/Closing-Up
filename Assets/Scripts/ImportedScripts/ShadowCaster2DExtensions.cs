@@ -72,7 +72,8 @@ public class ShadowCaster2DGenerator
 
         for (int i = 0; i < colliders.Length; ++i)
         {
-            GenerateTilemapShadowCastersInEditor(colliders[i], false);
+            if (colliders[i].gameObject.tag != "KeepLight")
+                GenerateTilemapShadowCastersInEditor(colliders[i], false);
         }
     }
 

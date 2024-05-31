@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class TaskInteractable : Interactable, IInteractable
 {
-    [SerializeField] Task task;
+    [SerializeField] protected Task task;
     public Task TaskSO { get { return task; } private set { task = value; } }
 
     SpriteRenderer spriteRend;
@@ -13,9 +13,10 @@ public class TaskInteractable : Interactable, IInteractable
     float completionCurrentTime;
 
     protected bool isBeingCompleted;
-    protected bool isCompleted;
+    public bool IsCompleted { get; protected set; }
 
-    public static event Action<TaskInteractable> NewTask;
+    bool isPlayingSound;
+
     public static event Action DisablePlayerMovement;
     public static event Action EnablePlayerMovement;
     public static event Action<TaskInteractable> TaskCompleted;
@@ -23,18 +24,23 @@ public class TaskInteractable : Interactable, IInteractable
 
     private void Awake()
     {
+        //Get variables from task scriptable object
         spriteRend = GetComponent<SpriteRenderer>();
         if (task != null) 
         { 
-            spriteRend.sprite = task.SpriteAsset;
+            //Get random sprite from available list
+            if(task.SpriteAsset.Count > 0)
+            {
+                int randSprite = UnityEngine.Random.Range(0, task.SpriteAsset.Count);
+                spriteRend.sprite = task.SpriteAsset[randSprite];
+            }
+
             UIText = task.UIText;
             completionMaxTime = task.CompletionTime;
         }
 
         completionCurrentTime = 0;
-
-        NewTask?.Invoke(this);
-        ChangeSliderFill?.Invoke(0);
+        isPlayingSound = false;
     }
 
     private void Update() 
@@ -42,6 +48,12 @@ public class TaskInteractable : Interactable, IInteractable
         //Run if the player is holding the interaction key on the object
         if (isBeingCompleted)
         {
+            if(!isPlayingSound) 
+            {
+                AudioManager.Instance.PlaySound(task.Clip, gameObject.transform, 1f);
+                isPlayingSound = true;
+            }
+
             //Add the time to the completion time
             completionCurrentTime += Time.deltaTime;
 
@@ -58,11 +70,10 @@ public class TaskInteractable : Interactable, IInteractable
     public void Interact()
     {
         //If completed, prevent the object from being interacted with again
-        if (isCompleted)
+        if (IsCompleted)
             return;
 
         isBeingCompleted = true;
-        //print($"{gameObject.name} is a task, being completed");
 
         DisableMovement();
     }
@@ -72,7 +83,9 @@ public class TaskInteractable : Interactable, IInteractable
     {
         isBeingCompleted = false;
         completionCurrentTime = 0;
-        //print($"Cancelled interacting with the task object; {gameObject.name}");
+
+        AudioManager.Instance.StopSound(task.Clip);
+        isPlayingSound = false;
 
         EnableMovement();
     }
@@ -80,14 +93,21 @@ public class TaskInteractable : Interactable, IInteractable
     //Runs if the interaction is done
     protected virtual void InteractionCompleted()
     {
-        print($"{gameObject.name}'s task has been completed!");
-        Destroy(gameObject);
-        isCompleted = true;
-        isBeingCompleted = false;
+        AudioManager.Instance.StopSound(task.Clip);
 
-        TaskCompleted?.Invoke(this);
+        IsCompleted = true;
+        isBeingCompleted = false;
+        isPlayingSound = false;
 
         EnableMovement();
+        CommunicateCompletion();
+        Destroy(gameObject);
+    }
+
+    //Notify that the task is completed
+    protected void CommunicateCompletion()
+    {
+        TaskCompleted?.Invoke(this);
     }
 
     //This is so any child classes can call the event

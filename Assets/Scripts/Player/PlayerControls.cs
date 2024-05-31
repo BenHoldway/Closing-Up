@@ -217,7 +217,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             ""id"": ""42fd654e-a14d-49b6-a65a-8670dc0e9376"",
             ""actions"": [
                 {
-                    ""name"": ""NextShift"",
+                    ""name"": ""PauseGame"",
                     ""type"": ""Button"",
                     ""id"": ""badf0de3-9d20-46f8-9724-801f4f8fd2f7"",
                     ""expectedControlType"": ""Button"",
@@ -230,11 +230,11 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""d1d53b64-fbb7-4a06-81ab-9bfe45b9fc09"",
-                    ""path"": ""<Keyboard>/space"",
+                    ""path"": ""<Keyboard>/escape"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""NextShift"",
+                    ""action"": ""PauseGame"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -250,7 +250,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Player_Lock = m_Player.FindAction("Lock", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
-        m_UI_NextShift = m_UI.FindAction("NextShift", throwIfNotFound: true);
+        m_UI_PauseGame = m_UI.FindAction("PauseGame", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -374,12 +374,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     // UI
     private readonly InputActionMap m_UI;
     private List<IUIActions> m_UIActionsCallbackInterfaces = new List<IUIActions>();
-    private readonly InputAction m_UI_NextShift;
+    private readonly InputAction m_UI_PauseGame;
     public struct UIActions
     {
         private @PlayerControls m_Wrapper;
         public UIActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
-        public InputAction @NextShift => m_Wrapper.m_UI_NextShift;
+        public InputAction @PauseGame => m_Wrapper.m_UI_PauseGame;
         public InputActionMap Get() { return m_Wrapper.m_UI; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -389,16 +389,16 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         {
             if (instance == null || m_Wrapper.m_UIActionsCallbackInterfaces.Contains(instance)) return;
             m_Wrapper.m_UIActionsCallbackInterfaces.Add(instance);
-            @NextShift.started += instance.OnNextShift;
-            @NextShift.performed += instance.OnNextShift;
-            @NextShift.canceled += instance.OnNextShift;
+            @PauseGame.started += instance.OnPauseGame;
+            @PauseGame.performed += instance.OnPauseGame;
+            @PauseGame.canceled += instance.OnPauseGame;
         }
 
         private void UnregisterCallbacks(IUIActions instance)
         {
-            @NextShift.started -= instance.OnNextShift;
-            @NextShift.performed -= instance.OnNextShift;
-            @NextShift.canceled -= instance.OnNextShift;
+            @PauseGame.started -= instance.OnPauseGame;
+            @PauseGame.performed -= instance.OnPauseGame;
+            @PauseGame.canceled -= instance.OnPauseGame;
         }
 
         public void RemoveCallbacks(IUIActions instance)
@@ -424,6 +424,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     }
     public interface IUIActions
     {
-        void OnNextShift(InputAction.CallbackContext context);
+        void OnPauseGame(InputAction.CallbackContext context);
     }
 }

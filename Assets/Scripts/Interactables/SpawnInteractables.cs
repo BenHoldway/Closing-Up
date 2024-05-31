@@ -1,58 +1,42 @@
+using System;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class SpawnInteractables : MonoBehaviour
 {
     [SerializeField] Tilemap floor;
-    [SerializeField] LayerMask floorLayer;
     [SerializeField] Transform center;
 
     [SerializeField] GameObject[] taskInteractable;
 
-    Collider2D[] cols = new Collider2D[1];
+    [SerializeField] GameObject spawnPointParent;
+    [SerializeField] Transform[] spawnPoints;
 
-    Vector2 spawnPoint = Vector2.zero;
-    bool isAttemptingToSpawn;
-    bool hasSpawned;
+    Vector2 spawnPoint;
 
     Task[] tasks;
     int taskIndex;
 
+    bool isGettingNewPos;
+
+    public static event Action<TaskInteractable> NewTask;
+    public static event Action<Vector2, GameObject, Tilemap, Transform> InteractableSetUp;
+
     // Start is called before the first frame update
     void Awake()
     {
-        isAttemptingToSpawn = false;
-        hasSpawned = false;
         taskIndex = 0;
+        spawnPoints = spawnPointParent.GetComponentsInChildren<Transform>();
     }
 
     private void OnEnable()
     {
-        RoomManager.SpawnInteractablesInteractables += SpawnInteractable;
+        RoomManager.SpawnInteractable += StartSpawning;
     }
 
     private void OnDisable()
     {
-        RoomManager.SpawnInteractablesInteractables -= SpawnInteractable;
-    }
-
-    private void Reset()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (isAttemptingToSpawn)
-        {
-            if (!hasSpawned)
-                hasSpawned = Spawn();
-
-            if (hasSpawned)
-                SetInteractablePos();        
-        }
-        
+        RoomManager.SpawnInteractable -= StartSpawning;
     }
 
     //Initialises the task array
@@ -62,7 +46,7 @@ public class SpawnInteractables : MonoBehaviour
     }
 
     //Constructs the tasks  
-    public void PickTask(Task task)
+    public void AddTask(Task task)
     {
         if (tasks == null)
             return;
@@ -71,67 +55,64 @@ public class SpawnInteractables : MonoBehaviour
         taskIndex++;
     }
 
-    void SpawnInteractable(GameObject _room) 
+    private void Update()
     {
-        if(_room == this.gameObject)
+        if(isGettingNewPos)
         {
-            isAttemptingToSpawn = true;
-            taskIndex = 0;
+            if(ValidPoint())
+            {
+                isGettingNewPos = false;
+                Spawn();
+            }
         }
     }
 
-    public void SetInteractablePos()
+    //Starts spawning interactables if room from event is this room
+    void StartSpawning(GameObject _room) 
+    {
+        if(_room == this.gameObject)
+        {
+            taskIndex = 0;
+            isGettingNewPos = true;
+        }
+    }
+
+    void Spawn()
     {
         foreach (GameObject taskObj in taskInteractable)
         {
             //If taskObj scriptable object equals to specific task, spawn that object
-            if(taskObj.GetComponent<TaskInteractable>().TaskSO == tasks[taskIndex])
+            if (taskObj.GetComponent<TaskInteractable>().TaskSO == tasks[taskIndex])
             {
                 //Instantiates the task interactable object and sets the position
                 GameObject interactable = Instantiate(taskObj, gameObject.transform);
-                interactable.transform.position = new Vector3(spawnPoint.x, spawnPoint.y, 0);
+
+                InteractableSetUp?.Invoke(spawnPoint, interactable, floor, center);
+
+                NewTask?.Invoke(interactable.GetComponent<TaskInteractable>());
                 break;
             }
         }
 
         taskIndex++;
-
-        //If all tasks have been instantiated, end instantiating
         if (taskIndex >= tasks.Length)
-            isAttemptingToSpawn = false;
-
-        hasSpawned = false;
-    }
-
-    bool Spawn() 
-    { 
-        //Gets the random point on tilemap
-        spawnPoint = GetRandomPoint();
-
-        //Get the number of colliders with the selected layer mask that spawnPoint collides with
-        //Then stores all of the colliders in cols
-        int numFound = Physics2D.OverlapCircleNonAlloc(spawnPoint, 0.1f, cols, floorLayer);
-
-        //print($"{gameObject.name}: Spawn: {spawnPoint}, numFound: {numFound}");
-
-        //Returns true if tilemap colliders are found, false if none have
-        if ((numFound == 0 || numFound > 1) || !cols[0].gameObject.transform.IsChildOf(gameObject.transform))
-            return false;
+            isGettingNewPos = false;
         else
-            return true;
+            isGettingNewPos = true;
     }
 
-    Vector2 GetRandomPoint()
+    bool ValidPoint()
     {
-        //Gets the bounds of the tilemap, and the center, then sets the center to world pos
-        Bounds bound = floor.GetComponent<CompositeCollider2D>().bounds;
-        //Vector3 center = floor.GetComponent<CompositeCollider2D>().transform.position;
+        //Get random transform point
+        int randPos = UnityEngine.Random.Range(1, spawnPoints.Length);
 
-        //Creates an x and y pos from a range within the tilemap bounds
-        float spawnX = Random.Range(center.position.x - bound.extents.x + 1f, center.position.x + bound.extents.x - 1f);
-        float spawnY = Random.Range(center.position.y - bound.extents.y + 1f, center.position.y + bound.extents.y - 1f);
+        if (spawnPoints[randPos] != null && spawnPoints[randPos].gameObject.activeSelf)
+        {
+            spawnPoint = spawnPoints[randPos].transform.position;
+            spawnPoints[randPos].gameObject.SetActive(false);
+            return true;
+        }
 
-        //Returns these co-ordinates
-        return new Vector2(spawnX, spawnY); 
+        return false;
     }
 }

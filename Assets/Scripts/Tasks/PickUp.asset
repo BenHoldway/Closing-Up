@@ -14,6 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   taskName: Pick Up
   type: 1
-  sprite: {fileID: -1451645367, guid: 497820a356d733f4591d018a1fa66d67, type: 3}
+  sprite:
+  - {fileID: 21300000, guid: 4f38c3c119b5d264ab3451eea288f38f, type: 3}
+  - {fileID: 21300000, guid: eef436be96cc8994a8b2afb8289facea, type: 3}
   uIText: To Pick Up!
   completionTime: 2
+  clip: {fileID: 8300000, guid: 2208eeb1e78153a4b953d1a5f5d68944, type: 3}

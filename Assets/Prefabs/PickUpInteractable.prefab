@@ -95,6 +95,7 @@ GameObject:
   - component: {fileID: 6175672547878419484}
   - component: {fileID: 1138290470750634785}
   - component: {fileID: -237308995418097494}
+  - component: {fileID: 954125481459510530}
   m_Layer: 6
   m_Name: PickUpInteractable
   m_TagString: Untagged
@@ -156,9 +157,9 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -2082637467
-  m_SortingLayer: -3
-  m_SortingOrder: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 10
   m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -246,5 +247,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isATaskInteractable: 1
   UIText: 
-  fillAmount: {fileID: 6568961194874199775, guid: 281bbb3ab0453b744a709e20fbc47db0, type: 3}
   task: {fileID: 11400000, guid: 7ed16177bd86cf348bb336a287386f97, type: 2}
+--- !u!114 &954125481459510530
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8311624729321823673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75222a43c41789c479a5acc7aad4727d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floorLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  spawnableLayers:
+    serializedVersion: 2
+    m_Bits: 4224
